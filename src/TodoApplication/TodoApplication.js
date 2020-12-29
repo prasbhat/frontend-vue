@@ -1,4 +1,5 @@
 import axios from 'axios';
+import moment from 'moment';
 
 const TODO_API_URL="http://localhost:8080/Todo"
 
@@ -19,15 +20,20 @@ export default {
       isEdit : false
     }
   },
-  computed: {
 
+  computed: {
   },
+
   mounted () {
     this.retrieveAll();
     this.retrieveStatus();
   },
 
   methods: {
+    formatDate(date) {
+      return moment(date, 'YYYY-MM-DD').format('DD-MMM-YYYY');
+    },
+
     retrieveAll() {
       axios
       .get(TODO_API_URL+'/findAll')

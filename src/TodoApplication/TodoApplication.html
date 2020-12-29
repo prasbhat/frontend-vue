@@ -19,7 +19,7 @@
                 <tr v-for='todoApp in todoAppList'>
                     <td> {{ todoApp.title }} </td>
                     <td> {{ todoApp.description }} </td>
-                    <td> {{ todoApp.dueDate }} </td>
+                    <td> {{ formatDate(todoApp.dueDate) }} </td>
                     <td> {{ todoApp.status }} </td>
                     <td><button class="btn btn-success" v-on:click="view(todoApp)">VIEW</button></td>
                     <td><button class="btn btn-success" v-on:click="edit(todoApp)">EDIT</button></td>
@@ -39,7 +39,7 @@
                     <td v-if="isEdit"><input v-model="todoApp.title" size="35" /></td>
                 </tr><tr>
                     <th>Description</th>
-                    <td v-if="!isEdit"> {{todoApp.description}} </td>
+                    <td v-if="!isEdit"> {{ formatDate(todoApp.dueDate) }} </td>
                     <td v-if="isEdit"><textarea v-model="todoApp.description" rows="3" cols="38"></textarea></td>
                 </tr><tr>
                     <th>Due Date</th>
