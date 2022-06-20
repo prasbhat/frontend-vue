@@ -1,65 +1,133 @@
 <section class="todo-application">
-  <div class="container">
-    <!-- Start of div for displaying the list -->
-    <div class="container"  v-show="!isSingle">
-        <button class="btn btn-success" v-on:click="create()">CREATE</button>
-        <table class='table-striped' border='1' align="center">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Due Date</th>
-                    <th>Status</th>
-                    <th>View</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for='todoApp in todoAppList'>
-                    <td> {{ todoApp.title }} </td>
-                    <td> {{ todoApp.description }} </td>
-                    <td> {{ formatDate(todoApp.dueDate) }} </td>
-                    <td> {{ todoApp.status }} </td>
-                    <td><button class="btn btn-success" v-on:click="view(todoApp)">VIEW</button></td>
-                    <td><button class="btn btn-success" v-on:click="edit(todoApp)">EDIT</button></td>
-                    <td><button class="btn btn-warning" v-on:click="deleteById(todoApp)">DELETE</button></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <!-- End of div for displaying the list -->
-    <!-- Start of div for displaying the single item -->
-    <div class='singleItem' v-show="isSingle">
-        <table class='table-striped' border='1' align="center">
-            <tbody>
-                <tr>
-                    <th>Title</th>
-                    <td v-if="!isEdit"> {{todoApp.title}} </td>
-                    <td v-if="isEdit"><input v-model="todoApp.title" size="35" /></td>
-                </tr><tr>
-                    <th>Description</th>
-                    <td v-if="!isEdit"> {{ formatDate(todoApp.dueDate) }} </td>
-                    <td v-if="isEdit"><textarea v-model="todoApp.description" rows="3" cols="38"></textarea></td>
-                </tr><tr>
-                    <th>Due Date</th>
-                    <td v-if="!isEdit"> {{todoApp.dueDate }} </td>
-                    <td v-if="isEdit"><input  type="date" v-model="todoApp.dueDate" /></td>
-                </tr><tr>
-                    <th>Status</th>
-                    <td v-if="!isEdit"> {{todoApp.status}} </td>
-                    <td v-if="isEdit">
-                        <select v-model="todoApp.status">
-                            <option value="">--Select Status--</option>
-                            <option v-for="status of todoStatus" v-bind:value="status">{{status}}</option>
-                         </select>
-                    </td>
-                </tr><tr v-if="isEdit">
-                    <td colspan="2"><button class="btn btn-success" v-on:click="submit(todoApp)">SUBMIT</button></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <!-- End of div for displaying the single item -->
-    </div>
+    <div class="container">
+        <!-- Start of div for displaying the list -->
+        <div class="container" v-show="!isCreate && !isSingle">
+            <button class="btn btn-success" v-on:click="create()">CREATE</button>
+            <table class='table-striped' border='1' align="center">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>No. Of Comments</th>
+                        <th>View</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for='todoApp in todoApplication'>
+                        <td> {{ todoApp.title }} </td>
+                        <td> {{ todoApp.description }} </td>
+                        <td> {{ formatDate(todoApp.dueDate) }} </td>
+                        <td> {{ todoApp.status }} </td>
+                        <td v-if="todoApp.todoTaskCommentsSet != null"> {{ todoApp.todoTaskCommentsSet.length }} </td>
+                        <td><button class="btn btn-success" v-on:click="view(todoApp)">VIEW</button></td>
+                        <td><button class="btn btn-success" v-on:click="edit(todoApp)">EDIT</button></td>
+                        <td><button class="btn btn-warning" v-on:click="deleteById(todoApp)">DELETE</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- End of div for displaying the list -->
+        <!-- Start of div for displaying the single item -->
+        <div v-show="isSingle">
+            <table class='table-striped' border='1' align="center">
+                <tbody>
+                    <tr>
+                        <th>Title</th>
+                        <td v-if="!isEdit"> {{todoApplication.title}} </td>
+                        <td v-if="isEdit"><input v-model="todoApplication.title" size="35" /></td>
+                    </tr><tr>
+                        <th>Description</th>
+                        <td v-if="!isEdit"> {{ todoApplication.description }} </td>
+                        <td v-if="isEdit"><textarea v-model="todoApplication.description" rows="3" cols="38"></textarea></td>
+                    </tr><tr>
+                        <th>Creation Date</th>
+                        <td> {{ formatDate(todoApplication.creationDate) }} </td>
+                    </tr><tr>
+                        <th>Due Date</th>
+                        <td v-if="!isEdit"> {{ formatDate(todoApplication.dueDate) }} </td>
+                        <td v-if="isEdit"><input  type="date" v-model="todoApplication.dueDate" /></td>
+                    </tr><tr>
+                        <th>Status</th>
+                        <td v-if="!isEdit"> {{todoApplication.status}} </td>
+                        <td v-if="isEdit">
+                            <select v-model="todoApplication.status">
+                                <option value="">--Select Status--</option>
+                                <option v-for="status of todoStatus" v-bind:value="status">{{status}}</option>
+                            </select>
+                        </td>
+                    </tr><tr>
+                        <th>
+                            Comments
+                        </th>
+                        <td v-show="isEdit || hasComments">
+                            <table class='table-striped' border='1' align="center">
+                                <thead>
+                                    <tr>
+                                        <th>Creation Date</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for='todoComments of todoApplication.todoTaskCommentsSet'>
+                                        <td>{{ formatDate(todoComments.creationDate) }}</td>
+                                        <td> {{todoComments.taskComments}} </td>
+                                    </tr>
+                                    <tr v-if="isEdit">
+                                        <td colspan="2"><button class="btn btn-success" v-on:click="toggleCommentsTable()">Add New Comments</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <table v-if="showToggleCommentTable">
+                                                <tr>
+                                                    <th>Description</th>
+                                                    <td>
+                                                        <textarea v-model="todoTaskComments.taskComments" rows="2" cols="24"></textarea>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>                                    
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr><tr v-if="isEdit">
+                        <td colspan="2"><button class="btn btn-success" v-on:click="submit(todoApplication, todoTaskComments)">SUBMIT</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- End of div for displaying the single item -->
+        <!-- Start of div for displaying the create new item -->
+        <div v-show="isCreate">
+            <table class='table-striped' border='1' align="center">
+                <tbody>
+                    <tr>
+                        <th>Title</th>
+                        <td><input v-model="todoApplicationNew.title" size="35" /></td>
+                    </tr><tr>
+                        <th>Description</th>
+                        <td><textarea v-model="todoApplicationNew.description" rows="3" cols="38"></textarea></td>
+                    </tr><tr>
+                        <th>Due Date</th>
+                        <td><input  type="date" v-model="todoApplicationNew.dueDate" /></td>
+                    </tr><tr>
+                        <th>Status</th>
+                        <td>
+                            <select v-model="todoApplicationNew.status">
+                                <option value="">--Select Status--</option>
+                                <option v-for="status of todoStatus" v-bind:value="status">{{status}}</option>
+                            </select>
+                        </td>
+                    </tr><tr>
+                        <td colspan="2"><button class="btn btn-success" v-on:click="createSubmit(todoApplicationNew)">SUBMIT</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- End of div for displaying the create new item -->
+</div>
 </section>

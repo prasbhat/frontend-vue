@@ -1,7 +1,5 @@
-import axios from 'axios';
-import moment from 'moment';
-
-const TODO_API_URL="http://localhost:8080/Todo"
+import moment from 'moment'
+import TodoDataService from './TodoDataService'
 
 export default {
   name: 'todo-application',
@@ -9,20 +7,18 @@ export default {
   props: [],
   data () {
     return {
-      // todoAppList : [
-      //   { id: 1, title: 'Hardcoded from Vue', description: 'Hardcoded from Vue', dueDate: '25-12-2020', status: 'Not Started' },
-      //   { id: 2, title: 'Prepared from Vue component', description: 'Hardcoded from Vue component', dueDate: '20-12-2020', status: 'Not Started' }
-      // ]
-      todoAppList: [], 
+      todoApplication:[],
+      todoApplicationNew: {systemTasksId:0,title:'', description:'', dueDate: null, status:''},
       todoStatus: [],
-      todoApp:[],
       isSingle : false,
-      isEdit : false
+      hasComments: false,
+      isEdit : false,
+      isCreate: false,
+      showToggleCommentTable: false
     }
   },
 
-  computed: {
-  },
+  computed: {},
 
   mounted () {
     this.retrieveAll();
@@ -35,44 +31,55 @@ export default {
     },
 
     retrieveAll() {
-      axios
-      .get(TODO_API_URL+'/findAll')
-      .then(response => (this.todoAppList = response.data))
+      TodoDataService.getAll()
+      .then(response => (
+        this.todoApplication = response.data
+      ))
     },
 
     retrieveStatus() {
-      axios
-        .get(TODO_API_URL+'/getStatus')
-        .then(response => (this.todoStatus = response.data))
-     },
+      TodoDataService.getStatus()
+      .then(response => (this.todoStatus = response.data))
+    },
 
     view(todoApp) {
-      this.todoApp = todoApp;
+      this.todoApplication = todoApp
+      if(todoApp.todoTaskCommentsSet.length > 0) this.hasComments = true
       this.isSingle = true
     },
 
     edit(todoApp) {
-      this.todoApp = todoApp;
+      this.todoApplication = todoApp;
       this.isSingle = true;
       this.isEdit = true;
+      this.todoTaskComments = {todoTaskCommentsId:null, taskComments:'', creationDate: null};
     },
 
     create() {
-      this.todoApp={id:0,title:'', description:'', dueDate: new Date(), status:''};
-      this.isSingle = true;
-      this.isEdit = true;
+      this.isCreate = true;
     },
 
     deleteById(todoApp) {
-      axios
-        .delete(TODO_API_URL+'/deleteById/'+todoApp.id)
+      TodoDataService.deleteById(todoApp.systemTasksId)
       location.reload();
     },
 
-    submit(todoApp) {
-      axios
-        .post(TODO_API_URL+'/create', todoApp)
+    submit(todoApplication, todoTaskComments) {
+      var todoTaskCommentsArray= [];
+      todoTaskCommentsArray.push(todoTaskComments);
+      todoApplication.todoTaskCommentsSet=todoTaskCommentsArray;
+      
+      TodoDataService.update(todoApplication);
       location.reload();
+    },
+
+    createSubmit(data) {      
+      TodoDataService.create(data);
+      location.reload();
+    },
+
+    toggleCommentsTable(){
+      this.showToggleCommentTable = !this.showToggleCommentTable;
     }
   }
 }
