@@ -8,7 +8,7 @@ export default {
   data () {
     return {
       todoApplication:[],
-      todoApplicationNew: {systemTasksId:0,title:'', description:'', dueDate: null, status:''},
+      todoApplicationNew: {title:'', description:'', dueDate: null, status:''},
       todoStatus: [],
       isSingle : false,
       hasComments: false,
@@ -52,7 +52,7 @@ export default {
       this.todoApplication = todoApp;
       this.isSingle = true;
       this.isEdit = true;
-      this.todoTaskComments = {todoTaskCommentsId:null, taskComments:'', creationDate: null};
+      this.todoTaskComments = {taskComments:''};
     },
 
     create() {
